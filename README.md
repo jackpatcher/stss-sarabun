@@ -37,19 +37,29 @@ signwa/
 
 ## install
 # 1. สร้างโปรเจกต์ด้วย Vite (เลือก TypeScript)
+```bash
 npm create vite@latest signwa -- --template react-ts
+```
 cd signwa
 
 # 2. ติดตั้ง Library หลัก
+```bash
 npm install react-signature-canvas @tanstack/react-query
+```
 
 # 3. ติดตั้ง Library สำหรับ PWA และการ Deploy
+```bash
 npm install -D vite-plugin-pwa gh-pages
+```
 
 # 4. ติดตั้ง Type Definitions
+```bash
 npm install -D @types/react-signature-canvas
+```
 
 ## sample app.tsx
+## ตัวอย่าง App.tsx
+```tsx
 import React, { useRef } from 'react';
 import SignatureCanvas from 'react-signature-canvas';
 import { useMutation, QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -107,9 +117,138 @@ export default function Root() {
     </QueryClientProvider>
   );
 }
+```
 
 ## App.css
 
+```css
+.sigCanvas {
+  width: 100%;
+  height: 450px;
+  ## ตัวอย่าง App.css
+  ```css
+  .sigCanvas {
+    width: 100%;
+    height: 450px;
+    background-color: #fff;
+    touch-action: none; /* ป้องกันหน้าจอเลื่อนขณะใช้ปากกาหรือนิ้วเซ็น */
+  }
+  border-radius: 15px;
+  overflow: hidden;
+  margin: 25px 0;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 30px;
+  text-align: center;
+}
+
+h1 { color: #007aff; font-family: sans-serif; }
+
+button {
+  padding: 15px 35px;
+  font-size: 1.1rem;
+  border-radius: 12px;
+  margin: 10px;
+  border: none;
+  font-weight: bold;
+}
+
+.btn-save { background-color: #007aff; color: white; }
+.btn-clear { background-color: #f2f2f7; color: #333; }
+```
+
+
+  ```
+## config  vite.config.ts
+## ตัวอย่าง config vite.config.ts
+```ts
+base: '/signwa/'
+```
+
+## การติดตั้ง (Install)
+
+```bash
+# 1. สร้างโปรเจกต์ด้วย Vite (เลือก TypeScript)
+npm create vite@latest signwa -- --template react-ts
+cd signwa
+
+# 2. ติดตั้ง Library หลัก
+npm install react-signature-canvas @tanstack/react-query
+
+# 3. ติดตั้ง Library สำหรับ PWA และการ Deploy
+npm install -D vite-plugin-pwa gh-pages
+
+# 4. ติดตั้ง Type Definitions
+npm install -D @types/react-signature-canvas
+```
+
+## ตัวอย่าง App.tsx
+```tsx
+import React, { useRef } from 'react';
+import SignatureCanvas from 'react-signature-canvas';
+import { useMutation, QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import './App.css';
+
+const queryClient = new QueryClient();
+
+function SignwaApp() {
+  const sigPad = useRef<SignatureCanvas | null>(null);
+  
+  const mutation = useMutation<void, Error, string>({
+    mutationFn: async (base64Data: string) => {
+      // ตัวอย่าง: ส่งข้อมูลลายเซ็นไปที่ Backend
+      console.log("signwa: Saving...", base64Data);
+      return new Promise((resolve) => setTimeout(resolve, 1500));
+    },
+    onSuccess: () => {
+      alert('signwa: บันทึกลายเซ็นสำเร็จ!');
+      sigPad.current?.clear();
+    },
+    onError: (error) => alert(`Error: ${error.message}`)
+  });
+
+  const handleSave = () => {
+    if (sigPad.current) {
+      if (sigPad.current.isEmpty()) return alert("กรุณาเซ็นชื่อก่อนครับ");
+      const data = sigPad.current.getTrimmedCanvas().toDataURL('image/png');
+      mutation.mutate(data);
+    }
+  };
+
+  return (
+    <div className="container">
+      <h1>signwa</h1>
+      <div className="canvas-wrapper">
+        <SignatureCanvas 
+          ref={(ref) => { sigPad.current = ref; }}
+          canvasProps={{ className: 'sigCanvas' }}
+        />
+      </div>
+      <div className="controls">
+        <button className="btn-clear" onClick={() => sigPad.current?.clear()}>ล้างหน้าจอ</button>
+        <button className="btn-save" onClick={handleSave} disabled={mutation.isPending}>
+          {mutation.isPending ? 'กำลังบันทึก...' : 'บันทึกลายเซ็น'}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+export default function Root() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <SignwaApp />
+    </QueryClientProvider>
+  );
+}
+```
+
+## ตัวอย่าง App.css
+```css
 .sigCanvas {
   width: 100%;
   height: 450px;
@@ -145,11 +284,12 @@ button {
 
 .btn-save { background-color: #007aff; color: white; }
 .btn-clear { background-color: #f2f2f7; color: #333; }
+```
 
-
-## config  vite.config.ts
+## ตัวอย่าง config vite.config.ts
+```ts
 base: '/signwa/'
-
+```
 
 ---
 

@@ -4,7 +4,7 @@
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#007aff",
-  "start_url": "/",
+  "start_url": "/signwa/",
   "icons": [
     {
       "src": "/icons/icon-192.png",

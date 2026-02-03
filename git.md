@@ -1,5 +1,5 @@
 git add .
-git commit -m "sidebar"
+git commit -m "sidebar2"
 git push origin main
 
 

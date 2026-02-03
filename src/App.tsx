@@ -1,82 +1,65 @@
-import { useRef, useEffect, useState } from 'react';
-import SignatureCanvas from 'react-signature-canvas';
-import { useMutation, QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+import { useState, useEffect } from 'react';
 import './App.css';
+import Sidebar from './Sidebar';
+import AppBar from './components/AppBar';
+import Home from './pages/Home';
+import Signature from './pages/Signature';
+import History from './pages/History';
+import Settings from './pages/Settings';
+import About from './pages/About';
 
-const queryClient = new QueryClient();
 
-function SignwaApp() {
-  const sigPad = useRef<SignatureCanvas | null>(null);
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
-  const [showInstall, setShowInstall] = useState(false);
-
-  useEffect(() => {
-    const handler = (e: any) => {
-      e.preventDefault();
-      setDeferredPrompt(e);
-      setShowInstall(true);
-    };
-    window.addEventListener('beforeinstallprompt', handler);
-    return () => window.removeEventListener('beforeinstallprompt', handler);
-  }, []);
-
-  const handleInstallClick = async () => {
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-      if (outcome === 'accepted') {
-        setShowInstall(false);
-        setDeferredPrompt(null);
-      }
-    }
-  };
-
-  const mutation = useMutation<void, Error, string>({
-    mutationFn: async (base64Data: string) => {
-      console.log("signwa saving:", base64Data);
-      return new Promise((resolve) => setTimeout(resolve, 1500));
-    },
-    onSuccess: () => { 
-      alert('signwa: บันทึกลายเซ็นเรียบร้อย!'); 
-      sigPad.current?.clear(); 
-    },
-    onError: (err) => alert(`Error: ${err.message}`)
-  });
-
-  const handleSave = () => {
-    if (sigPad.current?.isEmpty()) return alert("กรุณาเซ็นชื่อก่อนครับ");
-    const data = sigPad.current?.getTrimmedCanvas().toDataURL('image/png');
-    if (data) mutation.mutate(data);
-  };
-
-  return (
-    <div className="container">
-      <h1 className="logo-text">signwa</h1>
-      {showInstall && (
-        <button className="btn-install" onClick={handleInstallClick} style={{marginBottom: 16}}>
-          ติดตั้งแอปลงเครื่อง (Install App)
-        </button>
-      )}
-      <div className="canvas-wrapper">
-        <SignatureCanvas 
-          ref={(ref) => { sigPad.current = ref; }} 
-          canvasProps={{ className: 'sigCanvas' }} 
-        />
-      </div>
-      <div className="controls">
-        <button className="btn-clear" onClick={() => sigPad.current?.clear()}>ล้างหน้าจอ</button>
-        <button className="btn-save" onClick={handleSave} disabled={mutation.isPending}>
-          {mutation.isPending ? 'กำลังบันทึก...' : 'บันทึกลายเซ็น'}
-        </button>
-      </div>
-    </div>
-  );
+function getRoute() {
+  const hash = window.location.hash.replace('#', '').toLowerCase();
+  if (!hash || hash === '' || hash === '/') return 'home';
+  return hash;
 }
 
-export default function Root() {
+export default function App() {
+  const [route, setRoute] = useState(getRoute());
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  useEffect(() => {
+    const onHashChange = () => setRoute(getRoute());
+    window.addEventListener('hashchange', onHashChange);
+    return () => window.removeEventListener('hashchange', onHashChange);
+  }, []);
+
+  const handleNavigate = (key: string) => {
+    window.location.hash = key;
+    setRoute(key);
+  };
+
+  let Page;
+  switch (route) {
+    case 'signature':
+      Page = Signature;
+      break;
+    case 'history':
+      Page = History;
+      break;
+    case 'settings':
+      Page = Settings;
+      break;
+    case 'about':
+      Page = About;
+      break;
+    case 'home':
+    default:
+      Page = Home;
+      break;
+  }
+
   return (
-    <QueryClientProvider client={queryClient}>
-      <SignwaApp />
-    </QueryClientProvider>
+    <div className="dashboard-layout">
+      <Sidebar current={route} onNavigate={handleNavigate} open={sidebarOpen} setOpen={setSidebarOpen} />
+      <div className="dashboard-main">
+        <AppBar onSidebarOpen={() => setSidebarOpen(true)} />
+        <div className="dashboard-content">
+          <Page />
+        </div>
+      </div>
+    </div>
   );
 }

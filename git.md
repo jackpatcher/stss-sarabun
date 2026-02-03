@@ -1,5 +1,5 @@
 git add .
-git commit -m "add icon"
+git commit -m "sidebar"
 git push origin main
 
 

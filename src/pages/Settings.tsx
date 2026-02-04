@@ -3,7 +3,7 @@
 
 export default function Settings() {
   return (
-    <div className="page-center">
+    <div className="content-card">
       <h2>Settings</h2>
       <p>ตั้งค่าแอปพลิเคชัน</p>
     </div>

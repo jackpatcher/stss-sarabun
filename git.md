@@ -1,5 +1,5 @@
 git add .
-git commit -m "push sidebar"
+git commit -m "max content"
 git push origin main
 
 

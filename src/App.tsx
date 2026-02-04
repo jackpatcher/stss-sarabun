@@ -7,6 +7,7 @@ import Signature from './pages/Signature';
 import History from './pages/History';
 import Settings from './pages/Settings';
 import About from './pages/About';
+import { ThemeProvider } from './components/theme';
 
 
 function getRoute() {
@@ -53,7 +54,8 @@ export default function App() {
       break;
   }
 
-    return (
+  return (
+    <ThemeProvider>
       <div
         className={`app-container${sidebarOpen ? ' sidebar-open' : ''}`}
         style={{ display: 'flex', minHeight: '100vh' }}
@@ -71,5 +73,6 @@ export default function App() {
           </main>
         </div>
       </div>
-    );
+    </ThemeProvider>
+  );
 }

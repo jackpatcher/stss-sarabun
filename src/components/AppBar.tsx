@@ -6,7 +6,7 @@ export default function AppBar({ onSidebarOpen }: AppBarProps) {
   return (
     <div className="dashboard-appbar">
       <button className="sidebar-toggle compact" onClick={onSidebarOpen}>
-        <span style={{fontSize: '1.35rem', color: '#2563eb', lineHeight: 1}}>☰</span>
+        <span style={{fontSize: '1.35rem', color: 'var(--theme-appbarText, #fff)', lineHeight: 1}}>☰</span>
       </button>
       <span className="dashboard-title">STSS Sarabun</span>
       <div className="appbar-actions">

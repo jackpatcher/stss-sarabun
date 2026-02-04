@@ -1,5 +1,5 @@
 git add .
-git commit -m "max content"
+git commit -m "theme"
 git push origin main
 
 

@@ -1,7 +1,6 @@
-
 import { useState, useEffect } from 'react';
 import './App.css';
-import Sidebar from './Sidebar';
+import Sidebar from './components/Sidebar';
 import AppBar from './components/AppBar';
 import Home from './pages/Home';
 import Signature from './pages/Signature';
@@ -18,7 +17,7 @@ function getRoute() {
 
 export default function App() {
   const [route, setRoute] = useState(getRoute());
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   useEffect(() => {
     const onHashChange = () => setRoute(getRoute());
@@ -26,10 +25,13 @@ export default function App() {
     return () => window.removeEventListener('hashchange', onHashChange);
   }, []);
 
+
   const handleNavigate = (key: string) => {
     window.location.hash = key;
     setRoute(key);
   };
+
+  const toggleSidebar = () => setSidebarOpen((open) => !open);
 
   let Page;
   switch (route) {
@@ -51,15 +53,23 @@ export default function App() {
       break;
   }
 
-  return (
-    <div className="dashboard-layout">
-      <Sidebar current={route} onNavigate={handleNavigate} open={sidebarOpen} setOpen={setSidebarOpen} />
-      <div className="dashboard-main">
-        <AppBar onSidebarOpen={() => setSidebarOpen(true)} />
-        <div className="dashboard-content">
-          <Page />
+    return (
+      <div
+        className={`app-container${sidebarOpen ? ' sidebar-open' : ''}`}
+        style={{ display: 'flex', minHeight: '100vh' }}
+      >
+        <Sidebar 
+          open={sidebarOpen}
+          current={route}
+          onNavigate={handleNavigate}
+          setOpen={setSidebarOpen}
+        />
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+          <AppBar onSidebarOpen={toggleSidebar} />
+          <main className="main-content">
+            <Page />
+          </main>
         </div>
       </div>
-    </div>
-  );
+    );
 }
